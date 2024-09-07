@@ -29,6 +29,7 @@ import style from "./index.css?managed";
 import { AvatarDecoration, Colors, fakeProfileSectionProps, UserProfile, UserProfileData } from "./types";
 
 let UsersData = {} as Record<string, UserProfileData>;
+
 const UserBadges: Record<string, ProfileBadge[]> = {};
 const updateBadgesForAllUsers = () => {
     Object.keys(UsersData).forEach(userId => {
@@ -114,7 +115,6 @@ const updateBadgesForAllUsers = () => {
         });
     });
 };
-
 
 async function loadfakeProfile(noCache = false) {
     try {
@@ -504,6 +504,9 @@ export default definePlugin({
         if (user) {
             if (settings.store.enableProfileEffects || settings.store.enableProfileThemes) {
                 let mergeData: Partial<UserProfile> = {};
+                useEffect(() => {
+                    updateUsersData(UsersData);
+                }, [UsersData]);
                 const profileEffect = getUserEffect(user.userId);
                 const colors = decode(user.bio);
                 if (settings.store.enableProfileEffects && profileEffect) {

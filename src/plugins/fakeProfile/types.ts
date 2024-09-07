@@ -31,6 +31,7 @@ export interface UserProfile extends User {
 }
 export interface UserProfileData {
     profile_effect: string;
+    custom_profile_effect?: string;
     banner: string;
     avatar: string;
     badges: Badge[];
