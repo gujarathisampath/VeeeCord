@@ -26,9 +26,10 @@ const CustomizationSection = findByCodeLazy(".customizationSectionBackground");
 const cl = classNameFactory("vc-decoration-");
 
 import style from "./index.css?managed";
-import { AvatarDecoration, Colors, fakeProfileSectionProps, UserProfile, UserProfileData } from "./types";
+import { AvatarDecoration, Colors, fakeProfileSectionProps, ProfileEffectConfig, UserProfile, UserProfileData } from "./types";
 
 let UsersData = {} as Record<string, UserProfileData>;
+let CustomEffectsData: Record<string, ProfileEffectConfig> = {};
 
 const UserBadges: Record<string, ProfileBadge[]> = {};
 const updateBadgesForAllUsers = () => {
@@ -129,6 +130,19 @@ async function loadfakeProfile(noCache = false) {
         console.error("Error loading fake profile:", error);
     }
 }
+async function loadCustomEffects(noCache = false) {
+    try {
+        const init = {} as RequestInit;
+        if (noCache)
+            init.cache = "no-cache";
+
+        const response = await fetch(BASE_URL + "/profile-effects", init);
+        const data = await response.json();
+        CustomEffectsData = data;
+    } catch (error) {
+        console.error("Error loading custom profile effects:", error);
+    }
+}
 
 function getUserEffect(profileId: string) {
     return UsersData[profileId] ? UsersData[profileId].profile_effect : null;
@@ -222,6 +236,7 @@ function fakeProfileSection({ hideTitle = false, hideDivider = false, noMargin =
         <Flex>
             <Button
                 onClick={async () => {
+                    await loadCustomEffects(true);
                     await loadfakeProfile(true);
                     updateBadgesForAllUsers();
                     Toasts.show({
@@ -345,7 +360,8 @@ export default definePlugin({
     dependencies: ["MessageDecorationsAPI"],
     start: async () => {
         enableStyle(style);
-        await loadfakeProfile();
+        await loadCustomEffects(true);
+        await loadfakeProfile(true);
         if (settings.store.enableCustomBadges) {
             updateBadgesForAllUsers();
         }
@@ -369,6 +385,7 @@ export default definePlugin({
             });
         }
         setInterval(async () => {
+            await loadCustomEffects(true);
             await loadfakeProfile(true);
             if (settings.store.enableCustomBadges) {
                 updateBadgesForAllUsers();
@@ -480,13 +497,20 @@ export default definePlugin({
                     replace: "$self.useUserAvatarDecoration($1)??$&"
                 }
             ]
+        },
+        {
+            find: "\"ProfileEffectStore\"",
+            replacement: {
+                match: /getProfileEffectById\((\i)\){return null!=\i\?(\i)\[\i\]:void 0/,
+                replace: "getProfileEffectById($1){return $self.getProfileEffectById($1, $2)"
+            }
         }
     ],
     settingsAboutComponent: () => (
 
         <Forms.FormSection>
             <Forms.FormTitle tag="h3">Usage</Forms.FormTitle>
-            <Link href="https://github.com/sampathgujarathi/fakeProfile?tab=readme-ov-file#tutorial-about-plugin">CLICK HERE TO GET PROFILE EFFECTS, CUSTOM BADGES, BANNER OR ANIMATED PFP</Link>
+            <Link href="https://github.com/sampathgujarathi/fakeProfile?tab=readme-ov-file#tutorial-about-plugin">CLICK HERE TO GET CUSTOM PROFILE EFFECTS, CUSTOM BADGES, BANNER OR ANIMATED PFP</Link>
             <Forms.FormText>
                 Enable Profile Themes to use fake profile themes. <br />
                 To set your own colors:
@@ -500,13 +524,13 @@ export default definePlugin({
         </Forms.FormSection>
     ),
     settings,
+    getProfileEffectById(skuId: string, effects: Record<string, ProfileEffectConfig>) {
+        return CustomEffectsData[skuId];
+    },
     profileDecodeHook(user: UserProfile) {
         if (user) {
             if (settings.store.enableProfileEffects || settings.store.enableProfileThemes) {
                 let mergeData: Partial<UserProfile> = {};
-                useEffect(() => {
-                    updateUsersData(UsersData);
-                }, [UsersData]);
                 const profileEffect = getUserEffect(user.userId);
                 const colors = decode(user.bio);
                 if (settings.store.enableProfileEffects && profileEffect) {
@@ -628,6 +652,7 @@ export default definePlugin({
     fakeProfileSection: ErrorBoundary.wrap(fakeProfileSection),
     toolboxActions: {
         async "Refetch fakeProfile"() {
+            await loadCustomEffects(true);
             await loadfakeProfile(true);
             updateBadgesForAllUsers();
             Toasts.show({
