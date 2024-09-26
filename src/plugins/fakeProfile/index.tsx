@@ -16,7 +16,7 @@ import { Margins } from "@utils/margins";
 import { copyWithToast } from "@utils/misc";
 import { closeModal, Modals, openModal } from "@utils/modal";
 import definePlugin, { OptionType } from "@utils/types";
-import { findByCodeLazy } from "@webpack";
+import { findByCodeLazy, findComponentByCodeLazy } from "@webpack";
 import { Button, Forms, Toasts, Tooltip, useEffect, useState } from "@webpack/common";
 import { User } from "discord-types/general";
 import virtualMerge from "virtual-merge";
@@ -350,9 +350,6 @@ const BadgeMain = ({ user, wantMargin = true, wantTopMargin = false }: { user: U
         </span>
     );
 };
-
-
-
 export default definePlugin({
     name: "fakeProfile",
     description: "Unlock Discord profile effects, themes, avatar decorations, and custom badges without the need for Nitro.",
@@ -401,7 +398,7 @@ export default definePlugin({
         {
             find: "UserProfileStore",
             replacement: {
-                match: /(?<=getUserProfile\(\i\){return )(\i\[\i\])/,
+                match: /(?<=getUserProfile\(\i\){return )(.+?)(?=})/,
                 replace: "$self.profileDecodeHook($1)"
             }
         },
@@ -530,6 +527,7 @@ export default definePlugin({
     profileDecodeHook(user: UserProfile) {
         if (user) {
             if (settings.store.enableProfileEffects || settings.store.enableProfileThemes) {
+                console.log(user);
                 let mergeData: Partial<UserProfile> = {};
                 const profileEffect = getUserEffect(user.userId);
                 const colors = decode(user.bio);
