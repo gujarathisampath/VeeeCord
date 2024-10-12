@@ -10,6 +10,7 @@
 [style*="background-image"] [class*="background_"] {
     background-color: transparent !important;
 }
+
 .vc-fpt-preview * {
     pointer-events: none;
 }
