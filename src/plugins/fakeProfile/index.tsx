@@ -56,7 +56,7 @@ const updateBadgesForAllUsers = () => {
                             const modalKey = openModal(props => (
                                 <ErrorBoundary noop onError={() => {
                                     closeModal(modalKey);
-                                    VencordNative.native.openExternal("https://github.com/sampathgujarathi/fakeProfile");
+                                    VencordNative.native.openExternal("https://github.com/gujarathisampath/fakeProfile");
                                 }}>
                                     <Modals.ModalRoot {...props}>
                                         <Modals.ModalHeader>
@@ -257,7 +257,7 @@ const openModalOnClick = () => {
     const modalKey = openModal(props => (
         <ErrorBoundary noop onError={() => {
             closeModal(modalKey);
-            VencordNative.native.openExternal("https://github.com/sampathgujarathi/fakeProfile");
+            VencordNative.native.openExternal("https://github.com/gujarathisampath/fakeProfile");
         }}>
             <Modals.ModalRoot {...props}>
                 <Modals.ModalHeader>
@@ -508,7 +508,7 @@ export default definePlugin({
 
         <Forms.FormSection>
             <Forms.FormTitle tag="h3">Usage</Forms.FormTitle>
-            <Link href="https://github.com/sampathgujarathi/fakeProfile?tab=readme-ov-file#tutorial-about-plugin">CLICK HERE TO GET CUSTOM PROFILE EFFECTS, CUSTOM BADGES, BANNER OR ANIMATED PFP</Link>
+            <Link href="https://github.com/gujarathisampath/fakeProfile?tab=readme-ov-file#tutorial-about-plugin">CLICK HERE TO GET CUSTOM PROFILE EFFECTS, CUSTOM BADGES, BANNER OR ANIMATED PFP</Link>
             <Forms.FormText>
                 Enable Profile Themes to use fake profile themes. <br />
                 To set your own colors:
@@ -632,7 +632,7 @@ export default definePlugin({
         if (!avatarDecoration || !settings.store.enableAvatarDecorations) return;
         if (canAnimate && avatarDecoration?.animated !== false) {
             if (avatarDecoration?.skuId === SKU_ID) {
-                const url = new URL(`https://i.sampath.tech/avatar-decoration-presets/a_${avatarDecoration?.asset}.png`);
+                const url = new URL(`${BASE_URL}/avatar-decoration-presets/a_${avatarDecoration?.asset}.png`);
                 return url.toString();
             } else {
                 const url = new URL(`https://cdn.discordapp.com/avatar-decoration-presets/${avatarDecoration?.asset}.png`);
@@ -640,7 +640,7 @@ export default definePlugin({
             }
         } else {
             if (avatarDecoration?.skuId === SKU_ID) {
-                const url = new URL(`https://i.sampath.tech/avatar-decoration-presets/${avatarDecoration?.asset}.png`);
+                const url = new URL(`${BASE_URL}/avatar-decoration-presets/${avatarDecoration?.asset}.png`);
                 return url.toString();
             } else {
                 const url = new URL(`https://cdn.discordapp.com/avatar-decoration-presets/${avatarDecoration?.asset}.png?passthrough=false`);
