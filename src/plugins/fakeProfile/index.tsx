@@ -382,7 +382,7 @@ export default definePlugin({
         {
             find: "DefaultCustomizationSections",
             replacement: {
-                match: /(?<=USER_SETTINGS_AVATAR_DECORATION},"decoration"\),)/,
+                match: /(?<=#{intl::USER_SETTINGS_AVATAR_DECORATION}\)},"decoration"\),)/,
                 replace: "$self.fakeProfileSection(),"
             }
         },
