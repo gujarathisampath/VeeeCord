@@ -284,7 +284,7 @@ const BadgeMain = ({ user, wantMargin = true, wantTopMargin = false }: { user: U
     if (!validBadges || validBadges.length === 0) return null;
 
     const icons = validBadges.map((badge, index) => (
-        <div onClick={openModalOnClick} >
+        <div key={index} onClick={openModalOnClick} >
             <BadgeIcon
                 key={index}
                 user={user}
