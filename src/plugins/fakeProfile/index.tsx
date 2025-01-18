@@ -586,10 +586,12 @@ export default definePlugin({
             if (avatarUrl && typeof avatarUrl === "string") {
                 const parsedUrl = new URL(avatarUrl);
                 const image_name = parsedUrl.pathname.split("/").pop()?.replace("a_", "");
-                return BASE_URL + "/image/" + image_name ?? original(user, animated, size);
+                if (image_name) {
+                    return BASE_URL + "/image/" + image_name;
+                }
             }
+            return original(user, animated, size);
         }
-        return original(user, animated, size);
     },
     getAvatarDecorationURL({ avatarDecoration, canAnimate }: { avatarDecoration: AvatarDecoration | null; canAnimate?: boolean; }) {
         if (!avatarDecoration || !settings.store.enableAvatarDecorations) return;
