@@ -454,7 +454,7 @@ export default definePlugin({
             find: "renderAvatarWithPopout(){",
             replacement: [
                 {
-                    match: /(?<=\)\({(?:(?:.(?!\)}))*,)?avatarDecoration:)(\i)\.avatarDecoration(?=,|}\))/,
+                    match: /(?<=\i\)\({avatarDecoration:)(\i)(?=,)(?<=currentUser:(\i).+?)/,
                     replace: "$self.useUserAvatarDecoration($1)??$&"
                 }
             ]
