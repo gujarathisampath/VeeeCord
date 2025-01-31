@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { addBadge, BadgePosition, ProfileBadge, removeBadge } from "@api/Badges";
-import { addDecoration, removeDecoration } from "@api/MessageDecorations";
+import { addProfileBadge, BadgePosition, ProfileBadge, removeProfileBadge } from "@api/Badges";
+import { addMessageDecoration, removeMessageDecoration } from "@api/MessageDecorations";
 import { definePluginSettings } from "@api/Settings";
 import { classNameFactory, enableStyle } from "@api/Styles";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -59,7 +59,7 @@ const updateBadgesForAllUsers = () => {
                     if (badge.badge_id) {
                         newBadge.id = badge.badge_id;
                     }
-                    addBadge(newBadge);
+                    addProfileBadge(newBadge);
 
                     if (!UserBadges[userId]) {
                         UserBadges[userId] = [];
@@ -73,7 +73,7 @@ const updateBadgesForAllUsers = () => {
             const badgeStillExists = newBadges && newBadges[index];
 
             if (!badgeStillExists) {
-                removeBadge(existingBadge);
+                removeProfileBadge(existingBadge);
                 UserBadges[userId].splice(index, 1);
             }
         });
@@ -326,7 +326,7 @@ export default definePlugin({
             updateBadgesForAllUsers();
         }
         if (settings.store.showCustomBadgesinmessage) {
-            addDecoration("custom-badge", props =>
+            addMessageDecoration("custom-badge", props =>
                 <ErrorBoundary noop>
                     <BadgeMain user={props.message?.author} wantTopMargin={true} />
                 </ErrorBoundary>
@@ -354,7 +354,7 @@ export default definePlugin({
     },
     stop: () => {
         if (settings.store.showCustomBadgesinmessage) {
-            removeDecoration("custom-badge");
+            removeMessageDecoration("custom-badge");
         }
     },
     patches: [

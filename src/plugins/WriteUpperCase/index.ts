@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { addPreSendListener, removePreSendListener } from "@api/MessageEvents";
+import { addMessagePreSendListener, removeMessagePreSendListener } from "@api/MessageEvents";
 import { definePluginSettings, Settings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
@@ -28,12 +28,12 @@ export default definePlugin({
     patches: [],
 
     start() {
-        this.preSend = addPreSendListener(async (_, message) => {
+        this.preSend = addMessagePreSendListener(async (_, message) => {
             message.content = textProcessing(message.content);
         });
     },
     stop() {
-        this.preSend = removePreSendListener(async (_, message) => {
+        this.preSend = removeMessagePreSendListener(async (_, message) => {
             message.content = textProcessing(message.content);
         });
     },

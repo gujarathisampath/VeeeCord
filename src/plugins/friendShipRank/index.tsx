@@ -150,10 +150,10 @@ export default definePlugin({
         Devs.Samwich
     ],
     start() {
-        getBadgesToApply().forEach(thing => Vencord.Api.Badges.addBadge(thing));
+        getBadgesToApply().forEach(thing => Vencord.Api.Badges.addProfileBadge(thing));
 
     },
     stop() {
-        getBadgesToApply().forEach(thing => Vencord.Api.Badges.removeBadge(thing));
+        getBadgesToApply().forEach(thing => Vencord.Api.Badges.removeProfileBadge(thing));
     },
 });
