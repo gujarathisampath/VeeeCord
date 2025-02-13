@@ -40,7 +40,6 @@ const updateBadgesForAllUsers = () => {
         if (newBadges) {
             newBadges.forEach((badge, index) => {
                 const existingBadge = existingBadges[index];
-
                 if (!existingBadge) {
                     const newBadge = {
                         image: badge.icon,
@@ -60,11 +59,9 @@ const updateBadgesForAllUsers = () => {
                         newBadge.id = badge.badge_id;
                     }
                     addProfileBadge(newBadge);
-
                     if (!UserBadges[userId]) {
                         UserBadges[userId] = [];
                     }
-
                     UserBadges[userId].splice(index, 0, newBadge);
                 }
             });
@@ -491,7 +488,6 @@ export default definePlugin({
     profileDecodeHook(user: UserProfile) {
         if (user) {
             if (settings.store.enableProfileEffects || settings.store.enableProfileThemes) {
-                console.log(user);
                 let mergeData: Partial<UserProfile> = {};
                 const profileEffect = getUserEffect(user.userId);
                 const colors = decode(user.bio);
