@@ -82,7 +82,6 @@ const CACHE_DURATION = 5 * 60 * 1000;
 let lastFetch = 0;
 let updateInterval: NodeJS.Timeout | null = null;
 
-// Replace loadfakeProfile function
 async function loadfakeProfile(force = false) {
     const now = Date.now();
     if (!force && now - lastFetch < CACHE_DURATION) {
@@ -112,12 +111,13 @@ async function loadfakeProfile(force = false) {
     }
 }
 
-// Replace loadCustomEffects function
 async function loadCustomEffects(force = false) {
     try {
         const response = await fetch(BASE_URL + "/profile-effects", {
             cache: force ? "no-cache" : "default",
-            headers: { "Cache-Control": force ? "no-cache" : "max-age=300" }
+            headers: {
+                "Cache-Control": force ? "no-cache" : "max-age=300"
+            }
         });
 
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
