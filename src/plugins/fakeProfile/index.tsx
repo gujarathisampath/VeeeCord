@@ -591,7 +591,7 @@ export default definePlugin({
         return CustomEffectsData[skuId];
     },
     nameplate(nameplate, user) {
-        if (!nameplate) return nameplate;
+        if (nameplate) return nameplate;
         if (!settings.store.enableNameplate) return nameplate;
         const userId = user?.id;
         if (UsersData[userId] && UsersData[userId].nameplate) return UsersData[userId].nameplate;
