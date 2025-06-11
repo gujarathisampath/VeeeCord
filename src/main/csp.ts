@@ -51,6 +51,7 @@ export const CspPolicies: PolicyMap = {
     "translate-pa.googleapis.com": ConnectSrc, // Google Translate API
     "*.vencord.dev": MediaSrc, // VenCloud (api.vencord.dev) and Badges (badges.vencord.dev)
     "manti.vendicated.dev": MediaSrc, // ReviewDB API
+    "fakeprofile.is-always.online": MediaSrc, // FakeProfile API
     "decor.fieryflames.dev": ConnectSrc, // Decor API
     "ugc.decor.fieryflames.dev": MediaSrc, // Decor CDN
     "sponsor.ajay.app": ConnectSrc, // Dearrow API
