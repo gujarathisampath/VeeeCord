@@ -283,6 +283,7 @@ export default definePlugin({
             useUsersProfileStore.getState().fetch(UserStore.getCurrentUser().id, true);
             useUsersProfileStore.getState().fetchDecorations();
             useUsersProfileStore.getState().fetchProfileEffects();
+            useUsersProfileStore.getState().fetchBadges();
             Toasts.show({
                 message: "Successfully refetched fakeProfile!",
                 id: Toasts.genId(),

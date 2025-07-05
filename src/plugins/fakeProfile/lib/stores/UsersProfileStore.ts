@@ -192,15 +192,14 @@ export function useUserAvatarDecoration(user?: User): Decoration | null | undefi
 
             return destructor;
         }, []);
-
         if (AvatarDecoration) {
             const decoration = useUsersProfileStore.getState().decorations.get(AvatarDecoration);
             if (!decoration) {
                 useUsersProfileStore.getState().fetchDecorations();
                 const decoration = useUsersProfileStore.getState().decorations.get(AvatarDecoration);
-                return { asset: AvatarDecoration, skuId: decoration.skuId, animated: decoration.animated || false };
+                return { asset: AvatarDecoration, skuId: decoration.skuId, animated: decoration.animated };
             }
-            return { asset: AvatarDecoration, skuId: decoration.skuId, animated: decoration.animated || false };
+            return { asset: AvatarDecoration, skuId: decoration.skuId, animated: decoration.animated };
         }
         return null;
     } catch (e) {

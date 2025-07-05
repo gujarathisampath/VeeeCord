@@ -32,6 +32,7 @@ export function fakeProfileSection({ hideTitle = false, hideDivider = false, noM
                     useUsersProfileStore.getState().fetchProfileEffects();
                     useUsersProfileStore.getState().fetchDecorations();
                     useUsersProfileStore.getState().fetch(userId, true);
+                    useUsersProfileStore.getState().fetchProfileEffects();
                     Toasts.show({
                         message: "Successfully refetched fakeProfile!",
                         id: Toasts.genId(),
