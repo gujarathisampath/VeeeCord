@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { addProfileBadge, BadgePosition } from "@api/Badges";
+import { addProfileBadge, BadgePosition, removeProfileBadge } from "@api/Badges";
 import { debounce } from "@shared/debounce";
 import { proxyLazy } from "@utils/lazy";
 import { useEffect, useState, zustandCreate } from "@webpack/common";
@@ -28,6 +28,7 @@ interface UsersDecorationsState {
     decorations: Map<string, Decoration>;
     profileEffects: Map<string, ProfileEffects>;
     badges: Map<string, Badge[]>;
+    addedBadges: any[];
     fetchQueue: Set<string>;
     bulkFetch: () => Promise<void>;
     fetch: (userId: string, force?: boolean) => Promise<void>;
@@ -46,15 +47,21 @@ export const useUsersProfileStore = proxyLazy(() => zustandCreate((set: any, get
     decorations: new Map<string, Decoration>(),
     profileEffects: new Map<string, ProfileEffects>(),
     badges: new Map<string, Badge[]>(),
+    addedBadges: [],
     fetchBadges: debounce(async () => {
         if (!settings.store.enableCustomBadges) return;
+
+        const { addedBadges } = get();
+
+        addedBadges.forEach(badge => removeProfileBadge(badge));
+
         const fetchedBadges = await getBadges();
         const newBadges = new Map(
             Object.entries(fetchedBadges).map(([key, value]) => [key, value])
         );
-        set({
-            badges: newBadges,
-        });
+
+        const newAddedBadges: any[] = [];
+
         newBadges.forEach((userBadges, userId) => {
             if (Array.isArray(userBadges)) {
                 userBadges.forEach(badge => {
@@ -62,21 +69,19 @@ export const useUsersProfileStore = proxyLazy(() => zustandCreate((set: any, get
                         image: badge.badge,
                         description: badge.tooltip,
                         position: BadgePosition.START,
-                        shouldShow: ({ userId: badgeUserId }) => badgeUserId === userId
-                    } as {
-                        image: string;
-                        position: BadgePosition;
-                        description: string;
-                        link: string;
-                        shouldShow: (userInfo: any) => boolean;
-                        id?: string;
+                        shouldShow: ({ userId: badgeUserId }) => badgeUserId === userId,
+                        ...(badge.badge_id && { id: badge.badge_id })
                     };
-                    if (badge.badge_id) newBadge.id = badge.badge_id;
                     addProfileBadge(newBadge);
+                    newAddedBadges.push(newBadge);
                 });
             }
         });
 
+        set({
+            badges: newBadges,
+            addedBadges: newAddedBadges,
+        });
     }),
     fetchProfileEffects: debounce(async () => {
         const { profileEffects } = get();
