@@ -236,3 +236,16 @@ export type useStateFromStores = <T>(
     dependencies?: any,
     isEqual?: (old: T, newer: T) => boolean
 ) => T;
+
+export class RelationshipStore extends FluxStore {
+    getRelationships(): Record<string, number>;
+    getRelationshipType(userId: string): number | undefined;
+    isFriend(userId: string): boolean;
+    isBlocked(userId: string): boolean;
+    isIgnored(userId: string): boolean;
+    getFriendIDs(): string[];
+    getBlockedIDs(): string[];
+    getIgnoredIDs(): string[];
+    getNickname(userId: string): string | null;
+    getSince(userId: string): string;
+}
