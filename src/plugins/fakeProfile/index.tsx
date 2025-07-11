@@ -70,13 +70,6 @@ export default definePlugin({
                 replace: "$self.fakeProfileSection(),"
             }
         },
-        // {
-        //     find: ".MODAL]:26",
-        //     replacement: {
-        //         match: /(?=;return 0===(\i)\.length\?)(?<=(\i)\.useMemo.+?)/,
-        //         replace: ";$1=$2.useMemo(()=>[...$self.getBadges(arguments[0].displayProfile),...$1],[$1])"
-        //     }
-        // },
         {
             find: "=!1,canUsePremiumCustomization:",
             replacement: {

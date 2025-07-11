@@ -126,11 +126,13 @@ export default definePlugin({
         // 1. Have an affinity for
         // 2. Do not have a relationship with
         await this.refreshUserAffinities();
-        const userAffinities: Record<string, any>[] = UserAffinitiesStore.getUserAffinities();
-        const relationships = RelationshipStore.getMutableRelationships();
-        const nonFriendAffinities = userAffinities.filter(a => !RelationshipStore.getRelationshipType(a.otherUserId));
-        nonFriendAffinities.forEach(a => {
-            relationships[a.otherUserId] = 5;
+        const userAffinities: Set<string> = UserAffinitiesStore.getUserAffinitiesUserIds();
+        const relationships = RelationshipStore.getRelationships();
+        const nonFriendAffinities = Array.from(userAffinities).filter(
+            id => !RelationshipStore.getRelationshipType(id)
+        );
+        nonFriendAffinities.forEach(id => {
+            relationships[id] = 5;
         });
         RelationshipStore.emitChange();
 

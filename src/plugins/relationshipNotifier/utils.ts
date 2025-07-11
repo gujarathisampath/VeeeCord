@@ -172,7 +172,7 @@ export async function syncFriends() {
     friends.friends = [];
     friends.requests = [];
 
-    const relationShips = RelationshipStore.getMutableRelationships();
+    const relationShips = RelationshipStore.getRelationships();
     for (const id in relationShips) {
         switch (relationShips[id]) {
             case RelationshipType.FRIEND:
