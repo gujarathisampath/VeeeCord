@@ -136,7 +136,7 @@ export default definePlugin({
         });
         RelationshipStore.emitChange();
 
-        const toRequest = nonFriendAffinities.filter(a => !UserStore.getUser(a.otherUserId));
+        const toRequest = nonFriendAffinities.filter(id => !UserStore.getUser(id));
         const allGuildIds = Object.keys(GuildStore.getGuilds());
         const sentNonce = SnowflakeUtils.fromTimestamp(Date.now());
         let count = allGuildIds.length * Math.ceil(toRequest.length / 100);
