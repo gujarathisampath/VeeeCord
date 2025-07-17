@@ -43,6 +43,10 @@ export const Devs = /* #__PURE__*/ Object.freeze({
         name: "V",
         id: 343383572805058560n
     },
+    Sampath: {
+        name: "Sampath",
+        id: 984015688807100419n
+    },
     Arjix: {
         name: "ArjixWasTaken",
         id: 674710789138939916n,
