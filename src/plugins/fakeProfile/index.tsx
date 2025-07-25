@@ -101,10 +101,6 @@ export default definePlugin({
                 {
                     match: /(getUserAvatarURL:)(\i),/,
                     replace: "$1$self.getAvatarHook($2),"
-                },
-                {
-                    match: /(getUserAvatarURL:\i\(\){return )(\i)}/,
-                    replace: "$1$self.getAvatarHook($2)}"
                 }
             ]
         },
@@ -206,7 +202,7 @@ export default definePlugin({
             const avatarUrl = userData?.avatar;
             if (avatarUrl && typeof avatarUrl === "string") {
                 const parsedUrl = new URL(avatarUrl);
-                const image_name = parsedUrl.pathname.split("/").pop()?.replace("a_", "");
+                const image_name = parsedUrl.pathname.split("/").pop()?.replace(/\.(gif|webp)$/i, ".png");
                 if (image_name) {
                     return BASE_URL + "/image/" + image_name;
                 }
@@ -216,7 +212,7 @@ export default definePlugin({
     },
     getAvatarDecorationURL({ avatarDecoration, canAnimate }: { avatarDecoration: Decoration | null; canAnimate?: boolean; }) {
         if (!avatarDecoration || !settings.store.enableAvatarDecorations) return;
-        if (canAnimate && avatarDecoration?.animated !== false) {
+        if (canAnimate && avatarDecoration?.animated) {
             if (avatarDecoration?.skuId === SKU_ID) {
                 const url = new URL(`${BASE_URL}/avatar-decoration-presets/a_${avatarDecoration?.asset}.png`);
                 return url.toString();
@@ -226,7 +222,7 @@ export default definePlugin({
             }
         } else {
             if (avatarDecoration?.skuId === SKU_ID) {
-                const url = new URL(`${BASE_URL}/avatar-decoration-presets/${avatarDecoration?.asset}.png`);
+                const url = new URL(`${BASE_URL}/avatar-decoration-presets/${avatarDecoration?.asset.replace("a_", "")}.png`);
                 return url.toString();
             } else {
                 const url = new URL(`https://cdn.discordapp.com/avatar-decoration-presets/${avatarDecoration?.asset}.png?passthrough=false`);
