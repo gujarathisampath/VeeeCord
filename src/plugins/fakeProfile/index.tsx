@@ -162,7 +162,6 @@ export default definePlugin({
     ],
     profileDecodeHook(user: UserProfile) {
         if (user) {
-            console.log(user);
             if (settings.store.enableProfileEffects || settings.store.enableProfileThemes) {
                 let mergeData: Partial<UserProfile> = {};
                 const userData = useUsersProfileStore.getState().get(user.userId);
@@ -256,7 +255,6 @@ export default definePlugin({
     getProfileEffectById(skuId: string, effects: Record<string, any>) {
         const { profileEffects } = useUsersProfileStore.getState();
         const effect = profileEffects.get(skuId);
-        console.log(effect, skuId);
         return effect || (effects && effects[skuId]) || null;
     },
     getVoiceBackgroundStyles({ className, participantUserId }: any) {
