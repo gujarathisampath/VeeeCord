@@ -7,6 +7,7 @@
 import { enableStyle } from "@api/Styles";
 import { ErrorBoundary } from "@components/index";
 import { Devs } from "@utils/constants";
+import { copyWithToast } from "@utils/discord";
 import { Margins } from "@utils/margins";
 import definePlugin from "@utils/types";
 import { User } from "@vencord/discord-types";
@@ -21,7 +22,6 @@ import { Nameplate, UserProfile } from "./lib/types";
 import { decode, encode } from "./lib/utils/profile";
 import { settings } from "./settings";
 import { fakeProfileSection } from "./ui/fakeProfileSection";
-import { copyWithToast } from "@utils/discord";
 
 export default definePlugin({
     name: "fakeProfile",
@@ -110,7 +110,7 @@ export default definePlugin({
             group: true,
             replacement: [
                 {
-                    match: /(?<=TryItOut:\i,guildId:\i}\),)(?<=user:(\i).+?)/,
+                    match: /(?<=\.avatarDecoration,guildId:\i\}\)\),)(?<=user:(\i).+?)/,
                     replace: "vcAvatarDecoration=$self.useUserAvatarDecoration($1),"
                 },
                 {
@@ -133,12 +133,26 @@ export default definePlugin({
         {
             find: "#{intl::ACCOUNT_SPEAKING_WHILE_MUTED}",
             replacement: [
+                // Use Decor avatar decoration hook
                 {
-                    match: /(?<=\i\)\({avatarDecoration:)(\i)(?=,)(?<=currentUser:(\i).+?)/,
+                    match: /(?<=\i\)\({avatarDecoration:)\i(?=,)(?<=currentUser:(\i).+?)/,
                     replace: "$self.useUserAvatarDecoration($1)??$&"
                 }
             ]
         },
+        ...[
+            '"Message Username"', // Messages
+            ".nameplatePreview,{", // Nameplate preview
+            "#{intl::ayozFl::raw}", // Avatar preview
+        ].map(find => ({
+            find,
+            replacement: [
+                {
+                    match: /(?<=userValue.{0,25}void 0:)((\i)\.avatarDecoration)/,
+                    replace: "$self.useUserAvatarDecoration($2)??$1"
+                }
+            ]
+        })),
         {
             find: "#{intl::GUILD_OWNER}),",
             replacement: [
