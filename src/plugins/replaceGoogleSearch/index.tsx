@@ -21,6 +21,7 @@ const DefaultEngines = {
     GitHub: "https://github.com/search?q=",
     Reddit: "https://www.reddit.com/search?q=",
     Wikipedia: "https://wikipedia.org/w/index.php?search=",
+    Startpage: "https://www.startpage.com/sp/search?query="
 } as const;
 
 const enum ReplacementEngineValue {
@@ -129,6 +130,7 @@ const messageContextMenuPatch: NavContextMenuPatchCallback = (children, _props) 
 export default definePlugin({
     name: "ReplaceGoogleSearch",
     description: "Replaces the Google search with different Engine(s)",
+    tags: ["Utility", "Customisation"],
     authors: [Devs.Moxxie, Devs.Ethan],
 
     settings,

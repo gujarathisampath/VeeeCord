@@ -31,12 +31,12 @@ import { Margins } from "@utils/margins";
 import { shouldShowContributorBadge } from "@utils/misc";
 import { closeModal, ModalContent, ModalFooter, ModalHeader, ModalRoot, openModal } from "@utils/modal";
 import definePlugin from "@utils/types";
-import { User } from "@vencord/discord-types";
 import { ContextMenuApi, Forms, Menu, Toasts, UserStore } from "@webpack/common";
 
 const CONTRIBUTOR_BADGE = "https://cdn.discordapp.com/emojis/1092089799109775453.png?size=64";
 
 const ContributorBadge: ProfileBadge = {
+    id: "vencord_contributor_badge",
     description: "Vencord Contributor",
     iconSrc: CONTRIBUTOR_BADGE,
     position: BadgePosition.START,
@@ -57,7 +57,7 @@ async function loadBadges(noCache = false) {
 
 let intervalId: any;
 
-function BadgeContextMenu({ badge }: { badge: ProfileBadge & BadgeUserArgs; }) {
+function BadgeContextMenu({ badge }: { badge: Omit<ProfileBadge, "id"> & BadgeUserArgs; }) {
     return (
         <Menu.Menu
             navId="vc-badge-context"
@@ -89,13 +89,6 @@ export default definePlugin({
     required: true,
     patches: [
         {
-            find: ".MODAL]:26",
-            replacement: {
-                match: /(?=;return 0===(\i)\.length\?)(?<=(\i)\.useMemo.+?)/,
-                replace: ";$1=$2.useMemo(()=>[...$self.getBadges(arguments[0].displayProfile),...$1],[$1])"
-            }
-        },
-        {
             find: "#{intl::PROFILE_USER_BADGES}",
             replacement: [
                 {
@@ -103,7 +96,7 @@ export default definePlugin({
                     replace: "...$1.props,$&"
                 },
                 {
-                    match: /(?<="aria-label":(\i)\.description,.{0,200}?)children:/g,
+                    match: /(?<=forceOpen:.{0,40}?ariaHidden:!0,)children:(?=.{0,50}?(\i)\.id)/,
                     replace: "children:$1.component?$self.renderBadgeComponent({...$1}) :"
                 },
                 // handle onClick and onContextMenu
@@ -114,10 +107,10 @@ export default definePlugin({
             ]
         },
         {
-            find: "profileCardUsernameRow,children:",
+            find: "getLegacyUsername(){",
             replacement: {
-                match: /badges:(\i)(?<=displayProfile:(\i).+?)/,
-                replace: "badges:[...$self.getBadges($2),...$1]"
+                match: /getBadges\(\)\{.{0,100}?return\[/,
+                replace: "$&...$self.getBadges(this),"
             }
         }
     ],
@@ -151,15 +144,13 @@ export default definePlugin({
         clearInterval(intervalId);
     },
 
-    getBadges(props: { userId: string; user?: User; guildId: string; }) {
-        if (!props) return [];
+    getBadges(profile: { userId: string; guildId: string; }) {
+        if (!profile) return [];
 
         try {
-            props.userId ??= props.user?.id!;
-
-            return _getBadges(props);
+            return _getBadges(profile);
         } catch (e) {
-            new Logger("BadgeAPI#hasBadges").error(e);
+            new Logger("BadgeAPI#getBadges").error(e);
             return [];
         }
     },
@@ -184,7 +175,8 @@ export default definePlugin({
     },
 
     getDonorBadges(userId: string) {
-        return DonorBadges[userId]?.map(badge => ({
+        return DonorBadges[userId]?.map((badge, idx) => ({
+            id: `vencord_donor_badge_${idx}`,
             iconSrc: badge.badge,
             description: badge.tooltip,
             position: BadgePosition.START,

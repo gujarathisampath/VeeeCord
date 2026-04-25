@@ -28,7 +28,7 @@ import { Menu } from "@webpack/common";
 
 import managedStyle from "./style.css?managed";
 
-const Button = findComponentByCodeLazy(".NONE,disabled:", ".PANEL_BUTTON");
+const Button = findComponentByCodeLazy(".GREEN,positionKeyStemOverride:");
 
 const ShowCurrentGame = getUserSettingLazy<boolean>("status", "showCurrentGame")!;
 
@@ -104,6 +104,7 @@ function GameActivityToggleButton(props: { nameplate?: any; }) {
 export default definePlugin({
     name: "GameActivityToggle",
     description: "Adds a button next to the mic and deafen button to toggle game activity.",
+    tags: ["Activity", "Shortcuts"],
     authors: [Devs.Nuckyz, Devs.RuukuLada],
     dependencies: ["UserSettingsAPI"],
     settings,
@@ -112,10 +113,10 @@ export default definePlugin({
 
     patches: [
         {
-            find: "#{intl::ACCOUNT_SPEAKING_WHILE_MUTED}",
+            find: ".DISPLAY_NAME_STYLES_COACHMARK)",
             replacement: {
-                match: /className:\i\.buttons,.{0,50}children:\[/,
-                replace: "$&$self.GameActivityToggleButton(arguments[0]),"
+                match: /children:\[(?=.{0,25}?accountContainerRef)/,
+                replace: "children:[$self.GameActivityToggleButton(arguments[0]),"
             }
         }
     ],
