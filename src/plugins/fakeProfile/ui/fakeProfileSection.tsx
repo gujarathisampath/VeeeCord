@@ -6,10 +6,9 @@
 
 import { classNameFactory } from "@api/Styles";
 import { Flex } from "@components/Flex";
+import { useUsersProfileStore } from "@plugins/fakeProfile/lib/stores/UsersProfileStore";
 import { findComponentByCodeLazy } from "@webpack";
 import { Button, Toasts, UserStore } from "@webpack/common";
-
-import { useUsersProfileStore } from "../lib/stores/UsersProfileStore";
 
 const CustomizationSection = findComponentByCodeLazy(".customizationSectionBackground");
 export const cl = classNameFactory("vc-decor-");

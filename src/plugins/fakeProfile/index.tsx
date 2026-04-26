@@ -27,7 +27,7 @@ export default definePlugin({
     name: "fakeProfile",
     description: "Unlock Discord profile effects, themes, avatar decorations, and custom badges without the need for Nitro.",
     authors: [Devs.Sampath],
-    dependencies: ["MessageDecorationsAPI", "BadgeAPI"],
+    dependencies: ["MessageDecorationsAPI", "MemberListDecoratorsAPI"],
     start: async () => {
         enableStyle(style);
         useUsersProfileStore.getState().fetchBadges();
@@ -78,11 +78,10 @@ export default definePlugin({
             }
         },
         {
-            find: ".banner)==null",
+            find: ':"SHOULD_LOAD");',
             replacement: {
-                match: /(?<=void 0:)\i.getPreviewBanner\(\i,\i,\i\)/,
+                match: /\i(?:\?)?.getPreviewBanner\(\i,\i,\i\)(?=.{0,100}"COMPLETE")/,
                 replace: "$self.useBannerHook(arguments[0])||$&"
-
             }
         },
         {
@@ -123,17 +122,9 @@ export default definePlugin({
                 }
             ]
         },
-        // {
-        //     find: "\"ProfileEffectStore\"",
-        //     replacement: {
-        //         match: /getProfileEffectById\((\i)\){return null!=\i\?(\i)\[\i\]:void 0/,
-        //         replace: "getProfileEffectById($1){return $self.getProfileEffectById($1, $2)"
-        //     }
-        // },
         {
-            find: "#{intl::ACCOUNT_SPEAKING_WHILE_MUTED}",
+            find: ".DISPLAY_NAME_STYLES_COACHMARK)",
             replacement: [
-                // Use Decor avatar decoration hook
                 {
                     match: /(?<=\i\)\({avatarDecoration:)\i(?=,)(?<=currentUser:(\i).+?)/,
                     replace: "$self.useUserAvatarDecoration($1)??$&"
@@ -141,28 +132,36 @@ export default definePlugin({
             ]
         },
         ...[
-            '"Message Username"', // Messages
-            ".nameplatePreview,{", // Nameplate preview
-            "#{intl::ayozFl::raw}", // Avatar preview
+            "#{intl::GUILD_COMMUNICATION_DISABLED_ICON_TOOLTIP_BODY}",
+            "#{intl::COLLECTIBLES_NAMEPLATE_PREVIEW_A11Y}",
+            "#{intl::COLLECTIBLES_PROFILE_PREVIEW_A11Y}",
         ].map(find => ({
             find,
-            replacement: [
-                {
-                    match: /(?<=userValue.{0,25}void 0:)((\i)\.avatarDecoration)/,
-                    replace: "$self.useUserAvatarDecoration($2)??$1"
-                }
-            ]
+            replacement: {
+                match: /(?<=userValue:)((\i(?:\.author)?)\?\.avatarDecoration)/,
+                replace: "$self.useUserAvatarDecoration($2)??$1"
+            }
         })),
         {
             find: "#{intl::GUILD_OWNER}),",
             replacement: [
                 {
                     match: /user:(\i).{0,150}nameplate:(\i).*?name:null.*?(?=avatar:)/,
-                    replace: "$&banner:$self.customnameplate($1, $2),",
+                    replace: "$&banner:$self.CustomNameplate({user:$1, nameplate:$2}),",
                 },
                 {
                     match: /(?<=\),nameplate:)(\i)/,
                     replace: "$self.nameplate($1)"
+                }
+            ]
+        },
+        {
+            find: ".WIDGETS_RTC_UPSELL_COACHMARK),",
+            replacement: [
+                // Use Decor avatar decoration hook
+                {
+                    match: /(?<=\i\)\({avatarDecoration:)\i(?=,)(?<=currentUser:(\i).+?)/,
+                    replace: "$self.useUserAvatarDecoration($1)??$&"
                 }
             ]
         },
@@ -249,16 +248,14 @@ export default definePlugin({
     nameplate(nameplate: Nameplate | undefined) {
         return nameplate;
     },
-    customnameplate(user: User, nameplate: Nameplate | undefined) {
-        const userId = user?.id;
-        const userData = useUsersProfileStore.getState().get(userId);
-        if (userData && userData?.nameplate && settings.store.enableNameplate) {
-            const url = userData.nameplate;
-            const urlStr = typeof url === "object" ? JSON.stringify(url) : url;
-            return (<img id={`custom-nameplate-${user.id}`} src={urlStr} className="custom-nameplate" />);
-        }
-        return null;
-    },
+    CustomNameplate: ErrorBoundary.wrap(({ user, nameplate }: { user: User; nameplate: Nameplate | undefined; }) => {
+        const userData = useUsersProfileStore(state => state.get(user?.id));
+        if (!settings.store.enableNameplate) return null;
+        const url = userData?.nameplate;
+        console.log(url);
+        if (!url || typeof url !== "string") return null;
+        return (<img id={`custom-nameplate-${user.id}`} src={url} className="custom-nameplate" />);
+    }, { noop: true }),
     useBannerHook({ displayProfile }: any) {
         if (displayProfile?.banner && settings.store.nitroFirst) return;
         const UsersData = useUsersProfileStore.getState().get(displayProfile?.userId);
