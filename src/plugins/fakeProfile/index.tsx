@@ -105,7 +105,7 @@ function CustomNameplatePortal({ userId, url }: { userId: string, url: string; }
     );
 }
 
-import { removeProfileBadge } from "@api/Badges";
+import { addProfileBadge, BadgePosition, ProfileBadge, removeProfileBadge } from "@api/Badges";
 import style from "./index.css?managed";
 import { Badge, Decoration } from "./lib/api";
 import { BASE_URL, SKU_ID } from "./lib/constants";
@@ -115,6 +115,21 @@ import { decode, encode } from "./lib/utils/profile";
 import { settings } from "./settings";
 import { fakeProfileSection } from "./ui/fakeProfileSection";
 
+const globalBadgeLoader: ProfileBadge = {
+    id: "fake_profile_global_badge_loader",
+    getBadges(userInfo) {
+        if (!settings.store.enableCustomBadges) return [];
+        const userBadges = useUsersProfileStore.getState().badges.get(userInfo.userId);
+        if (!userBadges || !Array.isArray(userBadges)) return [];
+        return userBadges.map((badge, idx) => ({
+            id: badge.badge_id || `fake_profile_badge_${userInfo.userId}_${idx}`,
+            iconSrc: badge.badge,
+            description: badge.tooltip,
+            position: BadgePosition.START
+        }));
+    }
+};
+
 export default definePlugin({
     name: "fakeProfile",
     description: "Unlock Discord profile effects, themes, avatar decorations, and custom badges without the need for Nitro.",
@@ -123,14 +138,13 @@ export default definePlugin({
     dependencies: ["MessageDecorationsAPI", "BadgeAPI", "MemberListDecoratorsAPI"],
     managedStyle: style,
     start: async () => {
-        useUsersProfileStore.getState().fetchBadges();
+        addProfileBadge(globalBadgeLoader);
         useUsersProfileStore.getState().fetchProfileEffects();
         useUsersProfileStore.getState().fetchDecorations();
         useUsersProfileStore.getState().fetch(UserStore.getCurrentUser().id, true);
     },
     stop() {
-        const { addedBadges } = useUsersProfileStore.getState();
-        addedBadges.forEach(badge => removeProfileBadge(badge));
+        removeProfileBadge(globalBadgeLoader);
     },
     flux: {
         USER_PROFILE_MODAL_OPEN: data => {
