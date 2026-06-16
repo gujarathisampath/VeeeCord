@@ -52,7 +52,9 @@ function CustomNameplatePortal({ userId, url }: { userId: string, url: string; }
     }, [userId]);
 
     const { hasVideo, videoUrl } = useMemo(() => {
-        const match = url.match(/\/(\d+)\/[^/]+(?:\?.*)?$/);
+        const isDiscordCDN = url.includes("discordapp.com") || url.includes("discord.com");
+        const isStaticImage = /\.(png|jpe?g|webp|gif)(?:\?.*)?$/i.test(url);
+        const match = (isDiscordCDN && !isStaticImage) ? url.match(/\/(\d+)\/[^/]+(?:\?.*)?$/) : null;
         return {
             hasVideo: !!match,
             videoUrl: match ? `https://cdn.discordapp.com/media/v1/collectibles-shop/${match[1]}/video` : ""
@@ -103,8 +105,9 @@ function CustomNameplatePortal({ userId, url }: { userId: string, url: string; }
     );
 }
 
+import { removeProfileBadge } from "@api/Badges";
 import style from "./index.css?managed";
-import { Decoration } from "./lib/api";
+import { Badge, Decoration } from "./lib/api";
 import { BASE_URL, SKU_ID } from "./lib/constants";
 import { useUserAvatarDecoration, useUsersProfileStore } from "./lib/stores/UsersProfileStore";
 import { Nameplate, UserProfile } from "./lib/types";
@@ -124,6 +127,10 @@ export default definePlugin({
         useUsersProfileStore.getState().fetchProfileEffects();
         useUsersProfileStore.getState().fetchDecorations();
         useUsersProfileStore.getState().fetch(UserStore.getCurrentUser().id, true);
+    },
+    stop() {
+        const { addedBadges } = useUsersProfileStore.getState();
+        addedBadges.forEach(badge => removeProfileBadge(badge));
     },
     flux: {
         USER_PROFILE_MODAL_OPEN: data => {
@@ -147,7 +154,7 @@ export default definePlugin({
             }
         },
         {
-            find: "#{intl::USER_SETTINGS_RESET_PROFILE_THEME}",
+            find: "#{intl::USER_SETTINGS_RESET_PROFILE_THEME}),onClick:",
             replacement: {
                 match: /#{intl::USER_SETTINGS_RESET_PROFILE_THEME}\).+?}\)(?=\])(?<=color:(\i),.{0,500}?color:(\i),.{0,500}?)/,
                 replace: "$&,$self.addCopy3y3Button({primary:$1,accent:$2})"

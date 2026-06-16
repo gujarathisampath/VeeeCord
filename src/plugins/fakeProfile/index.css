@@ -25,13 +25,15 @@
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
-    bottom: 0 !important;
+    bottom: 0;
     width: 100% !important;
     height: 100% !important;
     border-radius: var(--radius-sm);
     overflow: hidden !important;
-    z-index: 0 !important;
     pointer-events: none !important;
+    opacity: 0.8;
+    -webkit-mask-image: linear-gradient(to right, transparent 20%, #fff);
+    mask-image: linear-gradient(to right, transparent 20%, #fff);
 }
 
 .vc-custom-nameplate-video-container {

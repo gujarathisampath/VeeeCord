@@ -31,7 +31,13 @@ export const settings = definePluginSettings({
         displayName: "Enable Custom Badges",
         description: "Allows you to use custom badges",
         default: false,
-        restartNeeded: true
+        onChange(val) {
+            if (val) {
+                import("./lib/stores/UsersProfileStore").then(m => {
+                    m.useUsersProfileStore.getState().fetchBadges();
+                });
+            }
+        }
     },
     enableAvatarDecorations: {
         type: OptionType.BOOLEAN,
