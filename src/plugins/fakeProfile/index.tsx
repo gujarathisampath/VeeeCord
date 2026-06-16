@@ -92,7 +92,7 @@ function CustomNameplatePortal({ userId, url }: { userId: string, url: string; }
                         <source src={videoUrl} type="video/mp4" />
                     </video>
                 ) : (
-                    <img src={url} className="vc-custom-nameplate-img" />
+                    <CachedImage src={url} className="vc-custom-nameplate-img" />
                 )}
             </div>
         </div>
@@ -114,6 +114,7 @@ import { Nameplate, UserProfile } from "./lib/types";
 import { decode, encode } from "./lib/utils/profile";
 import { settings } from "./settings";
 import { fakeProfileSection } from "./ui/fakeProfileSection";
+import { CachedImage } from "./ui/CachedImage";
 
 const globalBadgeLoader: ProfileBadge = {
     id: "fake_profile_global_badge_loader",
