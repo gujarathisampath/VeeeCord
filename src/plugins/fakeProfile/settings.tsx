@@ -8,44 +8,50 @@ import { definePluginSettings } from "@api/Settings";
 import { OptionType } from "@utils/types";
 
 export const settings = definePluginSettings({
-
     enableProfileEffects: {
-        description: "Allows you to use profile effects",
         type: OptionType.BOOLEAN,
+        displayName: "Enable Profile Effects",
+        description: "Allows you to use profile effects",
         default: true
     },
     enableNameplate: {
-        description: "Allows you to use nameplates",
         type: OptionType.BOOLEAN,
+        displayName: "Enable Nameplate",
+        description: "Allows you to use nameplates",
         default: true
     },
     enableProfileThemes: {
-        description: "Allows you to use profile themes",
         type: OptionType.BOOLEAN,
+        displayName: "Enable Profile Themes",
+        description: "Allows you to use profile themes",
         default: true
     },
     enableCustomBadges: {
-        description: "Allows you to use custom badges",
         type: OptionType.BOOLEAN,
+        displayName: "Enable Custom Badges",
+        description: "Allows you to use custom badges",
         default: false,
         restartNeeded: true
     },
     enableAvatarDecorations: {
-        description: "Allows you to use discord avatar decorations",
         type: OptionType.BOOLEAN,
+        displayName: "Enable Avatar Decorations",
+        description: "Allows you to use discord avatar decorations",
         default: true
     },
     nitroFirst: {
-        description: "Banner/Avatar to use if both Nitro and fakeProfile Banner/Avatar are present",
         type: OptionType.SELECT,
+        displayName: "Nitro First",
+        description: "Banner/Avatar to use if both Nitro and fakeProfile Banner/Avatar are present",
         options: [
             { label: "Nitro", value: true, default: true },
             { label: "fakeProfile", value: false },
         ]
     },
     voiceBackground: {
-        description: "Use fakeProfile banners as voice chat backgrounds",
         type: OptionType.BOOLEAN,
+        displayName: "Voice Background",
+        description: "Use fakeProfile banners as voice chat backgrounds",
         default: true,
         restartNeeded: true
     }

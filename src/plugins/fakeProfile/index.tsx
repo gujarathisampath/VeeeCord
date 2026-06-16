@@ -4,15 +4,104 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { enableStyle } from "@api/Styles";
 import { ErrorBoundary } from "@components/index";
 import { Devs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
 import { Margins } from "@utils/margins";
 import definePlugin from "@utils/types";
 import { User } from "@vencord/discord-types";
-import { Button, Toasts, UserStore } from "@webpack/common";
+import { Button, ReactDOM, Toasts, UserStore, useLayoutEffect, useRef, useState, useMemo } from "@webpack/common";
 import virtualMerge from "virtual-merge";
+
+function CustomNameplatePortal({ userId, url }: { userId: string, url: string; }) {
+    const ref = useRef<HTMLSpanElement>(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [portalTarget, setPortalTarget] = useState<Element | null>(null);
+    const [hovered, setHovered] = useState(false);
+
+    useLayoutEffect(() => {
+        if (ref.current) {
+            const childContainer = ref.current.closest('[class*="childContainer"]') ||
+                ref.current.parentElement?.querySelector('[class*="childContainer"]') ||
+                ref.current.parentElement?.closest('[class*="childContainer"]');
+            if (childContainer) {
+                const layout = childContainer.querySelector('[class*="layout"]');
+                if (layout) {
+                    layout.classList.add("vc-nameplated");
+                }
+                childContainer.classList.add("vc-nameplated-container");
+
+                const hoverTarget = childContainer.closest('[class*="member"]') ||
+                    childContainer.closest('[class*="clickable"]') ||
+                    childContainer;
+
+                const handleMouseEnter = () => setHovered(true);
+                const handleMouseLeave = () => setHovered(false);
+
+                hoverTarget.addEventListener("mouseenter", handleMouseEnter);
+                hoverTarget.addEventListener("mouseleave", handleMouseLeave);
+
+                setPortalTarget(childContainer);
+
+                return () => {
+                    hoverTarget.removeEventListener("mouseenter", handleMouseEnter);
+                    hoverTarget.removeEventListener("mouseleave", handleMouseLeave);
+                };
+            }
+        }
+    }, [userId]);
+
+    const { hasVideo, videoUrl } = useMemo(() => {
+        const match = url.match(/\/(\d+)\/[^/]+(?:\?.*)?$/);
+        return {
+            hasVideo: !!match,
+            videoUrl: match ? `https://cdn.discordapp.com/media/v1/collectibles-shop/${match[1]}/video` : ""
+        };
+    }, [url]);
+
+    useLayoutEffect(() => {
+        if (!hasVideo) return;
+        const video = videoRef.current;
+        if (!video) return;
+
+        if (hovered) {
+            video.load();
+            video.play();
+        } else {
+            video.pause();
+            video.currentTime = 0;
+        }
+    }, [hovered, hasVideo]);
+
+    const nameplateEl = (
+        <div className="vc-custom-nameplate-container" aria-hidden="true">
+            <div className="vc-custom-nameplate-video-container">
+                {hasVideo ? (
+                    <video
+                        ref={videoRef}
+                        tabIndex={-1}
+                        poster={url}
+                        loop
+                        muted
+                        playsInline
+                        className="vc-custom-nameplate-img"
+                    >
+                        <source src={videoUrl} type="video/webm" />
+                        <source src={videoUrl} type="video/mp4" />
+                    </video>
+                ) : (
+                    <img src={url} className="vc-custom-nameplate-img" />
+                )}
+            </div>
+        </div>
+    );
+
+    return (
+        <span ref={ref} style={{ display: "none" }}>
+            {portalTarget && ReactDOM.createPortal(nameplateEl, portalTarget)}
+        </span>
+    );
+}
 
 import style from "./index.css?managed";
 import { Decoration } from "./lib/api";
@@ -27,9 +116,10 @@ export default definePlugin({
     name: "fakeProfile",
     description: "Unlock Discord profile effects, themes, avatar decorations, and custom badges without the need for Nitro.",
     authors: [Devs.Sampath],
+    tags: ["Appearance", "Customisation"],
     dependencies: ["MessageDecorationsAPI", "BadgeAPI", "MemberListDecoratorsAPI"],
+    managedStyle: style,
     start: async () => {
-        enableStyle(style);
         useUsersProfileStore.getState().fetchBadges();
         useUsersProfileStore.getState().fetchProfileEffects();
         useUsersProfileStore.getState().fetchDecorations();
@@ -147,7 +237,7 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(?<=\),nameplate:)(\i)/,
-                    replace: "$self.nameplate($1)"
+                    replace: "$self.nameplate($1,arguments[0]?.user)"
                 },
                 {
                     match: /children:\[(?=.{0,300},lostPermissionTooltipText:)/,
@@ -237,7 +327,7 @@ export default definePlugin({
             }
         }
     },
-    nameplate(nameplate: Nameplate | undefined) {
+    nameplate(nameplate: Nameplate | undefined, user: User | undefined) {
         return nameplate;
     },
     customnameplate(user: User | undefined, nameplate: Nameplate | undefined) {
@@ -249,7 +339,7 @@ export default definePlugin({
                 ? (raw as Nameplate).src
                 : raw as string;
             if (!urlStr) return null;
-            return (<img id={`custom-nameplate-${user.id}`} src={urlStr} className="custom-nameplate" />);
+            return <CustomNameplatePortal userId={user.id} url={urlStr} />;
         }
         return null;
     },
